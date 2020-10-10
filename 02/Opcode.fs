@@ -1,0 +1,45 @@
+let programCode = "1,0,0,3,1,1,2,3,1,3,4,3,1,5,0,3,2,1,9,19,1,10,19,23,2,9,23,27,1,6,27,31,2,31,9,35,1,5,35,39,1,10,39,43,1,10,43,47,2,13,47,51,1,10,51,55,2,55,10,59,1,9,59,63,2,6,63,67,1,5,67,71,1,71,5,75,1,5,75,79,2,79,13,83,1,83,5,87,2,6,87,91,1,5,91,95,1,95,9,99,1,99,6,103,1,103,13,107,1,107,5,111,2,111,13,115,1,115,6,119,1,6,119,123,2,123,13,127,1,10,127,131,1,131,2,135,1,135,5,0,99,2,14,0,0"
+
+
+let translate (programCode: string) =
+    
+    let restore (codes: int array) =
+        codes.[1] <- 12
+        codes.[2] <- 2
+        codes
+
+    programCode.Split [| ',' |]
+    |> Array.map int
+    |> restore
+
+let write reg1 reg2 reg3 (memory: int array) f =
+    memory.[reg3] <- f memory.[reg1] memory.[reg2]
+    memory
+
+let eval opcode =
+    match opcode with
+    | 1 -> Some (+)
+    | 2 -> Some (*)
+    | _ -> None 
+
+let rec run (program: int array) (memory: int array) =
+    
+    let opCode = program.[0]
+    let reg1 = program.[1]
+    let reg2 = program.[2]
+    let reg3 = program.[3]
+
+    match eval opCode with
+    | Some op -> run program.[4 .. ] (write reg1 reg2 reg3 memory op)
+    | _ -> memory
+
+[<EntryPoint>]
+let main (_: string[]) = 
+    
+    let program = translate programCode
+    
+    let result = run program program
+    
+    printf "%d" result.[0]
+    
+    0
